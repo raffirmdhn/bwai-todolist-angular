@@ -55,57 +55,38 @@
         </button>
       </nav>
 
-      <!-- Category Filter list navigation -->
-      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 block mb-3 font-mono">My Areas</span>
-      <nav class="space-y-1 mb-8" aria-label="Category folders">
+      <!-- Dynamic Areas Filter List (with Manage trigger cog) -->
+      <div class="flex items-center justify-between mb-3 px-1">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest font-mono">My Areas</span>
+        <button 
+          (click)="openAreasConfig()"
+          class="flex items-center gap-1 text-[10px] font-extrabold text-indigo-600 hover:text-indigo-805 transition-all bg-indigo-50/75 hover:bg-indigo-100/80 px-2 py-1 rounded-lg border-none outline-none cursor-pointer"
+          title="Configure dynamic workspace areas"
+        >
+          <mat-icon class="text-[12px] h-[12px] w-[12px]">settings</mat-icon>
+          <span>Edit</span>
+        </button>
+      </div>
+      <nav class="space-y-1 mb-8 max-h-48 overflow-y-auto pr-1" aria-label="Category folders">
         <button 
           (click)="categoryFilter.set('all')"
-          [class]="categoryFilter() === 'all' ? 'bg-slate-100 text-slate-950 font-bold font-mono' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
+          [class]="categoryFilter() === 'all' ? 'bg-slate-100 text-slate-950 font-bold' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
           class="w-full flex items-center gap-3 px-4 py-2 text-xs rounded-xl text-left transition-all cursor-pointer border-none outline-none"
         >
-          <div class="w-2.5 h-2.5 rounded-full bg-slate-300 border"></div>
+          <div class="w-2.5 h-2.5 rounded-full bg-slate-205 border border-slate-300"></div>
           <span>Display All Areas</span>
         </button>
-        <button 
-          (click)="categoryFilter.set('work')"
-          [class]="categoryFilter() === 'work' ? 'bg-indigo-50/55 border-l-2 border-indigo-600 pl-3.5 text-indigo-800 font-semibold' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
-          class="w-full flex items-center gap-3 px-4 py-2 text-xs rounded-xl text-left transition-all cursor-pointer border-none outline-none"
-        >
-          <div class="w-2.5 h-2.5 rounded-full bg-indigo-500"></div>
-          <span>Work Tasks</span>
-        </button>
-        <button 
-          (click)="categoryFilter.set('personal')"
-          [class]="categoryFilter() === 'personal' ? 'bg-emerald-50/55 border-l-2 border-emerald-600 pl-3.5 text-emerald-800 font-semibold' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
-          class="w-full flex items-center gap-3 px-4 py-2 text-xs rounded-xl text-left transition-all cursor-pointer border-none outline-none"
-        >
-          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
-          <span>Personal Items</span>
-        </button>
-        <button 
-          (click)="categoryFilter.set('shopping')"
-          [class]="categoryFilter() === 'shopping' ? 'bg-purple-50/55 border-l-2 border-purple-600 pl-3.5 text-purple-800 font-semibold' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
-          class="w-full flex items-center gap-3 px-4 py-2 text-xs rounded-xl text-left transition-all cursor-pointer border-none outline-none"
-        >
-          <div class="w-2.5 h-2.5 rounded-full bg-purple-500"></div>
-          <span>Shopping Lists</span>
-        </button>
-        <button 
-          (click)="categoryFilter.set('ideas')"
-          [class]="categoryFilter() === 'ideas' ? 'bg-amber-50/55 border-l-2 border-amber-600 pl-3.5 text-amber-800 font-semibold' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
-          class="w-full flex items-center gap-3 px-4 py-2 text-xs rounded-xl text-left transition-all cursor-pointer border-none outline-none"
-        >
-          <div class="w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-          <span>Creative Ideas</span>
-        </button>
-        <button 
-          (click)="categoryFilter.set('urgent')"
-          [class]="categoryFilter() === 'urgent' ? 'bg-rose-50/55 border-l-2 border-rose-600 pl-3.5 text-rose-800 font-semibold' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
-          class="w-full flex items-center gap-3 px-4 py-2 text-xs rounded-xl text-left transition-all cursor-pointer border-none outline-none"
-        >
-          <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
-          <span>Urgent Focus</span>
-        </button>
+        
+        @for (area of areas(); track area.id) {
+          <button 
+            (click)="categoryFilter.set(area.id)"
+            [class]="categoryFilter() === area.id ? 'bg-indigo-50/55 border-l-2 border-indigo-600 pl-3.5 text-indigo-800 font-semibold shadow-2xs' : 'text-slate-500 hover:bg-slate-50/70 font-medium'"
+            class="w-full flex items-center gap-3 px-4 py-2 text-xs rounded-xl text-left transition-all cursor-pointer border-none outline-none"
+          >
+            <div [className]="'w-2.5 h-2.5 rounded-full ' + getAreaBgClasses(area.color)"></div>
+            <span class="truncate">{{ area.name }}</span>
+          </button>
+        }
       </nav>
 
       <!-- Day Statistics Progress Section -->
@@ -301,13 +282,11 @@
               <select 
                 id="task_category" 
                 formControlName="category" 
-                class="w-full h-11 px-3 border border-slate-200 outline-none focus:border-indigo-400 bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold cursor-pointer shadow-2xs"
+                class="w-full h-11 px-3 border border-slate-200 outline-none focus:border-indigo-400 bg-slate-50 text-slate-750 rounded-xl text-xs font-semibold cursor-pointer shadow-2xs"
               >
-                <option value="work">Work Folder</option>
-                <option value="personal">Personal Personal</option>
-                <option value="shopping">Shopping List</option>
-                <option value="ideas">Ideas Drawer</option>
-                <option value="urgent">Urgent Board</option>
+                @for (area of areas(); track area.id) {
+                  <option [value]="area.id">{{ area.name }}</option>
+                }
               </select>
             </div>
           </div>
@@ -321,7 +300,7 @@
                 type="text"
                 formControlName="description" 
                 placeholder="Provide additional details or checklists... (Optional)" 
-                class="w-full h-10 px-4 border border-slate-200 focus:border-indigo-400 rounded-xl text-xs outline-none bg-slate-50/30 text-slate-650 shadow-2xs font-medium"
+                class="w-full h-10 px-4 border border-slate-200 focus:border-indigo-400 rounded-xl text-xs outline-none bg-slate-50/30 text-slate-655 shadow-2xs font-medium"
               />
             </div>
 
@@ -384,7 +363,7 @@
             <button 
               (click)="toggleTodo(todo.id)"
               [aria-label]="todo.completed ? 'Mark task pending' : 'Mark task completed'"
-              class="flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center cursor-pointer border-indigo-200 hover:border-indigo-505"
+              class="flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center cursor-pointer border-indigo-200 hover:border-indigo-500"
               [class.bg-indigo-600]="todo.completed"
               [class.border-indigo-600]="todo.completed"
               [class.bg-slate-50]="!todo.completed"
@@ -416,7 +395,7 @@
                   @if (todo.description) {
                     <p 
                       [class.text-slate-400]="todo.completed"
-                      [class.text-slate-500]="!todo.completed"
+                      [class.text-slate-505]="!todo.completed"
                       class="text-xs sm:text-sm mt-0.5 max-w-2xl leading-relaxed break-words font-medium text-slate-600"
                     >
                       {{ todo.description }}
@@ -426,15 +405,23 @@
                   <!-- Tags metadata collection -->
                   <div class="flex flex-wrap items-center gap-2 mt-2 select-none">
                     
-                    <!-- Category folder badge -->
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider bg-slate-100/70 text-slate-500 border border-slate-200">
-                      {{ todo.category }}
-                    </span>
+                    <!-- Dynamic Category Area folder badge -->
+                    @if (getAreaById(todo.category); as activeArea) {
+                      <span [className]="'inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider border ' + getAreaBadgeClasses(activeArea.color)">
+                        <mat-icon class="text-[11px] h-[11px] w-[11px] mr-1 text-inherit select-none">{{ activeArea.icon }}</mat-icon>
+                        {{ activeArea.name }}
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider bg-slate-100/70 text-slate-500 border border-slate-200">
+                        <mat-icon class="text-[11px] h-[11px] w-[11px] mr-1 text-slate-400 select-none font-medium">folder</mat-icon>
+                        Unassigned
+                      </span>
+                    }
 
                     <!-- Due date status icon information -->
                     @if (todo.dueDate) {
                       <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[9px] font-mono text-slate-450 bg-slate-100/40 border border-slate-200/50">
-                        <mat-icon class="text-[11px] h-[11px] w-[11px] mr-1 text-slate-400">event</mat-icon>
+                        <mat-icon class="text-[11px] h-[11px] w-[11px] mr-1 text-slate-400 select-none">event</mat-icon>
                         Due: {{ todo.dueDate | date:'mediumDate' }}
                       </span>
                     }
@@ -465,7 +452,7 @@
                     </button>
                     <button 
                       (click)="cancelEdit()" 
-                      class="px-3 py-1.5 bg-slate-250 hover:bg-slate-300 text-slate-705 font-bold text-[10px] rounded-lg flex items-center gap-1 cursor-pointer border-none"
+                      class="px-3 py-1.5 bg-slate-200 hover:bg-slate-350 text-slate-700 font-bold text-[10px] rounded-lg flex items-center gap-1 cursor-pointer border-none"
                     >
                       <mat-icon class="text-xs">close</mat-icon>
                       <span>Cancel</span>
@@ -486,7 +473,7 @@
                   [class.bg-amber-50]="todo.priority === 'medium'"
                   [class.text-amber-600]="todo.priority === 'medium'"
                   [class.bg-slate-50]="todo.priority === 'low'"
-                  [class.text-slate-505]="todo.priority === 'low'"
+                  [class.text-slate-500]="todo.priority === 'low'"
                   class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider rounded-full shrink-0"
                 >
                   {{ todo.priority }} Scale
@@ -495,7 +482,7 @@
                 <!-- Hover action buttons triggers -->
                 <button 
                   (click)="startEditing(todo)" 
-                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-indigo-610 hover:bg-indigo-50/50 transition-all cursor-pointer border-none outline-none"
+                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50/50 transition-all cursor-pointer border-none outline-none"
                   title="Rename title"
                 >
                   <mat-icon class="text-base select-none">edit</mat-icon>
@@ -503,7 +490,7 @@
 
                 <button 
                   (click)="deleteTodo(todo.id)" 
-                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-rose-610 hover:bg-rose-50/50 transition-all cursor-pointer border-none outline-none"
+                  class="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50/50 transition-all cursor-pointer border-none outline-none"
                   title="Delete Item"
                 >
                   <mat-icon class="text-base select-none">delete_outline</mat-icon>
@@ -526,3 +513,227 @@
     </div>
   </main>
 </div>
+
+<!-- Modal Overlay shadow for Area Configuration -->
+@if (showAreasConfig()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-modal="true">
+    
+    <!-- Backdrop with blur styling -->
+    <div class="absolute inset-0 transition-opacity bg-slate-900/60 backdrop-blur-xs" aria-hidden="true" (click)="closeAreasConfig()"></div>
+    
+    <!-- Modal card container -->
+    <div class="relative z-10 bg-white rounded-3xl text-left shadow-2xl transform transition-all sm:my-8 sm:max-w-xl sm:w-full border border-slate-100 flex flex-col max-h-[90vh] overflow-hidden">
+        
+        <!-- Modal Header -->
+        <div class="px-6 py-5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 bg-indigo-100 text-indigo-700 rounded-xl flex items-center justify-center">
+              <mat-icon class="text-lg">category</mat-icon>
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-slate-900">Workspace Areas</h3>
+              <p class="text-[10px] text-slate-400 font-mono font-bold uppercase tracking-wider">Configure dynamic folders</p>
+            </div>
+          </div>
+          <button (click)="closeAreasConfig()" class="p-1.5 rounded-xl hover:bg-slate-200/70 text-slate-405 hover:text-slate-650 transition-colors cursor-pointer border-none outline-none flex items-center justify-center">
+            <mat-icon class="text-base select-none">close</mat-icon>
+          </button>
+        </div>
+
+        <!-- Modal Body Content -->
+        <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+          
+          <!-- Section 1: Create Area Folder Form -->
+          <div class="bg-indigo-50/45 p-5 rounded-2xl border border-indigo-100/50 space-y-4">
+            <div class="flex items-center gap-2 select-none">
+              <mat-icon class="text-indigo-600 text-sm">add_circle_outline</mat-icon>
+              <h4 class="text-xs font-extrabold text-indigo-900 uppercase tracking-widest font-mono">Create New Folder</h4>
+            </div>
+
+            <div class="space-y-3.5">
+              <!-- Name input field -->
+              <div>
+                <input 
+                  type="text" 
+                  [value]="newAreaName()" 
+                  (input)="newAreaName.set($any($event.target).value)" 
+                  placeholder="Enter folder name (e.g., Fitness, Taxes)" 
+                  class="w-full h-10 px-3.5 bg-white border border-slate-200 focus:border-indigo-400 rounded-xl text-xs outline-none text-slate-800 font-semibold shadow-2xs"
+                />
+              </div>
+
+              <!-- Theme Color Selector Presets -->
+              <div>
+                <span class="block text-[9px] uppercase font-mono tracking-widest font-extrabold text-indigo-805/75 mb-2">Select Theme Color</span>
+                <div class="flex flex-wrap gap-2">
+                  @for (color of presetColors; track color) {
+                    <button 
+                      type="button"
+                      (click)="newAreaColor.set(color)"
+                      [class]="newAreaColor() === color ? 'ring-2 ring-offset-1 ' + getRingClass(color) : 'scale-90 hover:scale-100'"
+                      [className]="'w-6 h-6 rounded-lg cursor-pointer border border-black/10 transition-all ' + getAreaBgClasses(color)"
+                      [title]="color"
+                    >
+                      <span class="sr-only">{{ color }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Bullet Icon Selection Selector Preset -->
+              <div>
+                <span class="block text-[9px] uppercase font-mono tracking-widest font-extrabold text-indigo-805/75 mb-2">Select Bullet Icon</span>
+                <div class="flex flex-wrap gap-1.5">
+                  @for (icon of presetIcons; track icon) {
+                    <button 
+                      type="button"
+                      (click)="newAreaIcon.set(icon)"
+                      [class]="newAreaIcon() === icon ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-slate-100 text-slate-500 border border-slate-200'"
+                      class="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all border-none"
+                    >
+                      <mat-icon class="text-sm select-none">{{ icon }}</mat-icon>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Create button trigger -->
+              <button 
+                type="button" 
+                (click)="createArea()"
+                [disabled]="!newAreaName().trim()"
+                class="w-full h-10 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-45 disabled:cursor-not-allowed text-white font-bold text-xs rounded-xl transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer border-none"
+              >
+                <mat-icon class="text-sm select-none">playlist_add</mat-icon>
+                <span>Register Custom Area</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 2: Areas Lists Workspace -->
+          <div class="space-y-3">
+            <span class="text-[10px] uppercase font-bold font-mono tracking-widest text-slate-400">Available Areas</span>
+            
+            <div class="space-y-3 divide-y divide-slate-100">
+              @for (area of areas(); track area.id) {
+                <div class="pt-3 first:pt-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  
+                  @if (editingAreaId() !== area.id) {
+                    <!-- View mode block -->
+                    <div class="flex items-center gap-3">
+                      <div [className]="'w-8 h-8 rounded-xl text-white flex items-center justify-center shrink-0 ' + getAreaBgClasses(area.color)">
+                        <mat-icon class="text-sm select-none">{{ area.icon }}</mat-icon>
+                      </div>
+                      <div>
+                        <p class="text-xs font-bold text-slate-900 leading-none">{{ area.name }}</p>
+                        <span class="text-[9px] text-slate-400 font-mono tracking-wider block mt-1">Ref ID: {{ area.id }}</span>
+                      </div>
+                    </div>
+
+                    <!-- Row edit controller modifiers -->
+                    <div class="flex items-center gap-1.5 justify-end">
+                      <button 
+                        (click)="startEditingArea(area)" 
+                        class="p-1 px-2.5 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-150 text-slate-600 hover:text-indigo-600 rounded-lg text-[10px] font-bold transition-colors cursor-pointer bg-white"
+                      >
+                        Modify
+                      </button>
+                      <button 
+                        (click)="deleteArea(area.id)" 
+                        [disabled]="areas().length <= 1"
+                        class="p-1 px-2.5 hover:bg-rose-50 border border-slate-200 hover:border-rose-100 text-slate-400 hover:text-rose-600 rounded-lg text-[10px] font-bold transition-colors cursor-pointer bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Delete folder"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  } @else {
+                    <!-- Inline edit modifier workspace form -->
+                    <div class="w-full space-y-4 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
+                      <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-bold font-mono text-indigo-700">Modifying Area Folder</span>
+                        <span class="text-[9px] text-slate-450 font-mono">ID: {{ area.id }}</span>
+                      </div>
+
+                      <!-- Name Text Box Form -->
+                      <div>
+                        <input 
+                          type="text" 
+                          [value]="areaFormName()" 
+                          (input)="areaFormName.set($any($event.target).value)" 
+                          class="w-full h-9 px-3 bg-white border border-slate-200 focus:border-indigo-400 rounded-lg text-xs font-bold outline-none text-slate-800"
+                        />
+                      </div>
+
+                      <!-- Preset inline Colors Selector palette -->
+                      <div class="space-y-1">
+                        <span class="text-[9px] font-bold text-slate-505 block uppercase tracking-wider font-mono">Theme Color</span>
+                        <div class="flex flex-wrap gap-1.5">
+                          @for (color of presetColors; track color) {
+                            <button 
+                              type="button"
+                              (click)="areaFormColor.set(color)"
+                              [class]="areaFormColor() === color ? 'ring-2 ring-indigo-500 ring-offset-1 scale-110' : ''"
+                              [className]="'w-5 h-5 rounded hover:scale-105 border border-black/5 cursor-pointer ' + getAreaBgClasses(color)"
+                            >
+                              <span class="sr-only">{{ color }}</span>
+                            </button>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Preset Icon selection picker list -->
+                      <div class="space-y-1">
+                        <span class="text-[9px] font-bold text-slate-505 block uppercase tracking-wider font-mono">Bullet Icon</span>
+                        <div class="flex flex-wrap gap-1">
+                          @for (icon of presetIcons; track icon) {
+                            <button 
+                              type="button"
+                              (click)="areaFormIcon.set(icon)"
+                              [class]="areaFormIcon() === icon ? 'bg-indigo-600 text-white' : 'bg-white hover:bg-slate-100 text-slate-500 border border-slate-200'"
+                              class="w-7 h-7 rounded flex items-center justify-center cursor-pointer border-none text-[10px]"
+                            >
+                              <mat-icon class="text-[12px] h-[12px] w-[12px] select-none">{{ icon }}</mat-icon>
+                            </button>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Execution operations buttons -->
+                      <div class="flex items-center justify-end gap-1.5 pt-1.5 border-t border-slate-200/50">
+                        <button 
+                          (click)="saveAreaEdit(area.id)"
+                          [disabled]="!areaFormName().trim()"
+                          class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-[10px] font-bold rounded-lg cursor-pointer border-none shadow-2xs"
+                        >
+                          Save
+                        </button>
+                        <button 
+                          (click)="cancelAreaEdit()" 
+                          class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-650 text-[10px] font-bold rounded-lg cursor-pointer border-none"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+
+                    </div>
+                  }
+
+                </div>
+              }
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Dialog Footer -->
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end select-none">
+          <button (click)="closeAreasConfig()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 hover:shadow-sm text-white text-xs font-bold rounded-xl cursor-pointer shadow-2xs border-none">
+            Done Saving
+          </button>
+        </div>
+
+      </div>
+  </div>
+}
